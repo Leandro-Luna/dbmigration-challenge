@@ -1,14 +1,26 @@
 from datetime import datetime
+from typing import Optional
 
-from pydantic import BaseModel, field_validator, StrictInt
+from pydantic import BaseModel, field_validator
 
 
 class HiredEmployee(BaseModel):
-    id: StrictInt
-    name: str
-    datetime: datetime
-    department_id: StrictInt
-    job_id: StrictInt
+    id: int
+    name: Optional[str]
+    datetime: Optional[datetime]
+    department_id: Optional[int]
+    job_id: Optional[int]
+
+    @field_validator("datetime", mode="before")
+    def validate_iso_datetime(cls, d: str | datetime) -> datetime:
+        if d is datetime:
+            try:
+                value = datetime.fromisoformat(d)
+                return value
+            except ValueError:
+                raise ValueError("Date should be ISO format.")
+        else:
+            return d
 
 
 class Department(BaseModel):
