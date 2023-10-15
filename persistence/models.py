@@ -13,7 +13,7 @@ class Department(Base):
     employees = relationship("Employee", back_populates="department")
 
 
-class Jobs(Base):
+class Job(Base):
     __tablename__ = 'jobs'
 
     id = Column(Integer, primary_key=True)
