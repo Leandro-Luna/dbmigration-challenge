@@ -1,17 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import session, sessionmaker
-
-SQLALCHEMY_DATABASE_URI = "sqlite:///./app_db.db"
+from sqlalchemy.sql import text
+SQLALCHEMY_DATABASE_URI = "sqlite:///C:\\Users\\lluna\\dbmigration-challenge\\dbmigration-challenge\\app_db.db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URI,
-    connect_args={"check_same_thread": False}
+    connect_args={"check_same_thread": False},
+    echo=True
 )
 
 SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
+    autoflush=True,
     bind=engine
 )
 
