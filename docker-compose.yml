@@ -1,0 +1,25 @@
+version: '3'
+services:
+  mysql-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: some_password
+      MYSQL_DATABASE: migrations
+    healthcheck:
+              test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+              timeout: 20s
+              retries: 10
+      
+  fastapi-app:
+    build: .
+    environment:
+      DB_USER: root
+      DB_HOST: mysql-db
+      MYSQL_ROOT_PASSWORD: some_password
+      MYSQL_DATABASE: migrations
+    ports:
+      - "80:80"
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+    command: bash -c "cd ./persistence/migrations && alembic upgrade head && cd ../.. && uvicorn app.main:app --host 0.0.0.0 --port 80" 

@@ -1,6 +1,5 @@
 from typing import List
 
-from sqlalchemy import insert
 from sqlalchemy.orm import session
 from pydantic import BaseModel, TypeAdapter
 
@@ -9,22 +8,34 @@ import schemas
 
 
 class FileService():
-    
-    def __init__(self, Session: session):
-        self.Session = Session
-    
+    lookup_schema = {
+        "departments": {
+            "schema": schemas.Department,
+            "model": models.Department
+        },
+        "jobs": {
+            "schema": schemas.Job,
+            "model": models.Job
+        },
+        "hired_employees": {
+            "schema": schemas.HiredEmployee,
+            "model": models.Employee
+        }
+    }
+
+    def __init__(self, db: session):
+        self.db = db
+
     def _validate(self, values: dict, schema: BaseModel):
-        
-        TypeAdapter(List[schema]).validate_python(values)
 
-    def insert_departments(self, values: dict):
+        return TypeAdapter(List[schema]).validate_python(values)
 
-        self._validate(values, schemas.Department)            
+    def insert_file(self, table: str, values: dict):
 
-        with self.Session() as ss:
-            ss.bulk_insert_mappings(models.Department, values)
-            ss.commit()
-    
+        values = self._validate(values, FileService.lookup_schema[table]["schema"])
 
-
+        self.db.bulk_insert_mappings(
+            FileService.lookup_schema[table]["model"], values
+        )
+        self.db.commit()
 
